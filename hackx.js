@@ -42,7 +42,7 @@ function createAnswerGUI(answer) {
   // Remove a GUI após 10 segundos
   setTimeout(() => {
     gui.remove();
-  }, 5000);
+  }, 10000);
 }
 
 // Função para criar o botão discreto
