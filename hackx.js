@@ -17,11 +17,16 @@ async function fetchAnswers() {
   }
 }
 
-// Função para criar a GUI discreta
-function createGUI(answer) {
+// Função para criar a GUI com a resposta
+function createAnswerGUI(answer) {
+  // Remove qualquer GUI anterior
+  const existingGui = document.querySelector('#answer-gui');
+  if (existingGui) existingGui.remove();
+
   const gui = document.createElement('div');
+  gui.id = 'answer-gui';
   gui.style.position = 'fixed';
-  gui.style.bottom = '10px';
+  gui.style.bottom = '40px'; // Acima do botão
   gui.style.right = '10px';
   gui.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
   gui.style.color = 'white';
@@ -37,29 +42,54 @@ function createGUI(answer) {
   // Remove a GUI após 10 segundos
   setTimeout(() => {
     gui.remove();
-  }, 10000);
+  }, 5000);
 }
 
-// Função principal
-async function main() {
-  const questionId = getQuestionIdFromUrl();
-  if (!questionId) {
-    console.log('Nenhum ID válido encontrado na URL');
-    return;
-  }
+// Função para criar o botão discreto
+function createButton() {
+  const button = document.createElement('button');
+  button.textContent = '🔍'; // Ícone discreto (lupa)
+  button.style.position = 'fixed';
+  button.style.bottom = '10px';
+  button.style.right = '10px';
+  button.style.backgroundColor = 'rgba(0, 0, 0, 0.3)'; // Fundo quase transparente
+  button.style.border = 'none';
+  button.style.color = 'white';
+  button.style.padding = '5px';
+  button.style.borderRadius = '50%'; // Formato circular
+  button.style.fontSize = '12px';
+  button.style.cursor = 'pointer';
+  button.style.zIndex = '10000';
+  button.style.opacity = '0.5'; // Bem discreto
+  button.style.transition = 'opacity 0.3s';
+  button.onmouseover = () => (button.style.opacity = '1'); // Aumenta opacidade no hover
+  button.onmouseout = () => (button.style.opacity = '0.5');
 
-  const answers = await fetchAnswers();
-  if (!answers) return;
+  // Evento de clique
+  button.onclick = async () => {
+    const questionId = getQuestionIdFromUrl();
+    if (!questionId) {
+      createAnswerGUI('Nenhum ID válido encontrado na URL');
+      return;
+    }
 
-  // Procura a questão pelo ID
-  const question = answers.find(item => item.id_da_questao === parseInt(questionId));
-  if (question && question.alternativa_correta) {
-    const answer = Object.values(question.alternativa_correta)[0];
-    createGUI(answer);
-  } else {
-    createGUI('Resposta não encontrada para o ID: ' + questionId);
-  }
+    const answers = await fetchAnswers();
+    if (!answers) {
+      createAnswerGUI('Erro ao buscar respostas');
+      return;
+    }
+
+    const question = answers.find(item => item.id_da_questao === parseInt(questionId));
+    if (question && question.alternativa_correta) {
+      const answer = Object.values(question.alternativa_correta)[0];
+      createAnswerGUI(answer);
+    } else {
+      createAnswerGUI('Resposta não encontrada para o ID: ' + questionId);
+    }
+  };
+
+  document.body.appendChild(button);
 }
 
-// Executa o bot
-main();
+// Executa a criação do botão ao carregar
+createButton();
