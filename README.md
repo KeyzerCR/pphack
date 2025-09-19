@@ -2,6 +2,7 @@
 Hack de Prova Paulista 
 
 ```js
+// Cole o JSON aqui
 const answers = [
     {
         "questao_numero": 1,
@@ -382,11 +383,11 @@ const answers = [
     }
 ];
 
-// Função para extrair números da URL
-function getQuestionIdFromUrl() {
+// Função para extrair todos os números da URL
+function getQuestionIdsFromUrl() {
   const url = window.location.href;
   const numberMatch = url.match(/\d+/g);
-  return numberMatch ? numberMatch.find(num => num.length > 5) : null;
+  return numberMatch ? numberMatch : []; // Retorna todos os números encontrados
 }
 
 // Função para procurar o enunciado no HTML
@@ -424,9 +425,10 @@ function createAnswerGUI(answer) {
 
   setTimeout(() => {
     gui.remove();
-  }, 10000);
+  }, 5000);
 }
 
+// Função para criar o botão arrastável
 function createButton() {
   const button = document.createElement('button');
   button.textContent = '🔍';
@@ -478,12 +480,16 @@ function createButton() {
 
   // Evento de clique para mostrar a resposta
   button.onclick = () => {
-    const questionId = getQuestionIdFromUrl();
+    const questionIds = getQuestionIdsFromUrl();
     let question = null;
-    if (questionId) {
-      question = answers.find(item => item.id_da_questao === parseInt(questionId));
+
+    // Verifica todos os números da URL
+    for (const id of questionIds) {
+      question = answers.find(item => item.id_da_questao === parseInt(id));
+      if (question) break; // Sai do loop se encontrar uma correspondência
     }
 
+    // Se não encontrou por ID, procura por enunciado
     if (!question) {
       question = searchEnunciadoInHtml(answers);
       if (!question) {
